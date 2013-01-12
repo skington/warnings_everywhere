@@ -12,10 +12,14 @@ use_ok('warnings::everywhere');
 # At first, no warning categories are disabled
 is_deeply([warnings::everywhere::categories_disabled()],
     [], 'No warnings are disabled at first');
+ok(warnings::everywhere::_is_bit_set($warnings::Bits{all}),
+    'The all bit is set');
 
 # We can disable uninitialized warnings
 ok(warnings::everywhere::disable_warning_category('uninitialized'),
     'We can disable uninitialized warnings');
+ok(!warnings::everywhere::_is_bit_set($warnings::Bits{all}),
+    'The all bit is now unset');
 
 is_deeply([warnings::everywhere::categories_disabled()],
     ['uninitialized'], 'This is now in our list of disabled categories');
@@ -32,3 +36,6 @@ ok(warnings::everywhere::enable_warning_category('uninitialized'),
 
 is_deeply([warnings::everywhere::categories_disabled()],
     [], 'No warnings are disabled any more');
+ok(warnings::everywhere::_is_bit_set($warnings::Bits{all}),
+    'The all bit is set once more')
+    or diag(warnings::everywhere::_dump_mask($warnings::Bits{all}));

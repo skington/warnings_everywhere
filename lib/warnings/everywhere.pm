@@ -193,12 +193,23 @@ sub enable_warning_category {
 sub _set_category_mask {
     my ($category, $bit_value) = @_;
     
-    ### FIXME: all
+    # Set or unset the specific category bit value (e.g. if
+    # someone says use warnings qw(uninitialized) or
+    # no warnings qw(uninitialized)).
     _set_bit_mask(\($warnings::Bits{$category}),
         $warnings::Offsets{$category}, $bit_value);
-    _set_bit_mask(\($warnings::DeadBits{$category}),
-        $warnings::Offsets{$category} + 1, $bit_value);
-    ### TODO: compute all
+
+    # Compute what the bitmask for all should be.
+    $warnings::Bits{all} = _bitmask_categories_enabled();
+
+    # If we've enabled all categories, we should probably set
+    # the all bit as well, just for tidiness.
+    if ($bit_value) {
+        if (!categories_disabled()) {
+            _set_bit_mask(\$warnings::Bits{all}, $warnings::Offsets{all}, 1);
+        }
+    }
+    ### TODO: fatal warnings
 }
 
 =item disable_warning_category
@@ -218,6 +229,14 @@ sub disable_warning_category {
     return 1;
 }
 
+sub _bitmask_categories_enabled {
+    my $mask;
+    for my $category_enabled (categories_enabled()) {
+        _set_bit_mask(\$mask, $warnings::Offsets{$category_enabled}, 1)
+    }
+    return $mask;
+}
+
 sub _set_bit_mask {
     my ($mask_ref, $bit_num, $bit_value) = @_;
 
@@ -225,7 +244,12 @@ sub _set_bit_mask {
     # bit accordingly.
     # We have to do it this way as warning masks are hundreds of bits wide,
     # which neither a 32- nor a 64-bit Perl can deal with natively.
-    my $byte_num = int($bit_num) / 8;
+    # The mask might not be long enough, so pad it with null bytes if
+    # we need to first.
+    my $byte_num = int($bit_num / 8);
+    while (length($$mask_ref) < $byte_num) {
+        $$mask_ref .= "\x0";
+    }
     my $byte_value = substr($$mask_ref, $byte_num, 1);
     vec($byte_value, $bit_num % 8, 1) = $bit_value;
     substr($$mask_ref, $byte_num, 1) = $byte_value;
@@ -235,21 +259,24 @@ sub _set_bit_mask {
 sub _is_bit_set {
     my ($mask, $bit_num) = @_;
 
-    return vec($mask, int($bit_num / 8), 8) & (1<<($bit_num % 8));
+    return vec($mask, int($bit_num / 8), 8) & (1 << ($bit_num % 8));
 }
 
 sub _dump_mask {
     my ($mask) = @_;
 
-    for my $byte_num (0..11) {
-        printf('%08b', vec($mask, $byte_num, 8));
-        print (($byte_num+1) % 4 == 0 ? "\n" : "|");
+    my $output;
+    for my $byte_num (reverse 0..15) {
+        $output .= sprintf('%08b', vec($mask, $byte_num, 8));
+        $output .= ($byte_num % 4 == 0 ? "\n" : '|');
     }
+    return $output;
 }
 
 sub _check_warning_category {
     my ($category) = @_;
 
+    return if $category eq 'all';
     if (!exists $warnings::Offsets{$category}) {
         carp "Unrecognised warning category $category";
         return;
