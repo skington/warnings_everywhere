@@ -26,3 +26,5 @@ Write more tests.
 Check it works with fatal warnings.
 Module aliases.
 CPAN stuff like licences, version numbers etc.
+Work out where the overload warning comes from.
+Test on 5.8.0, 5.11.0, 5.13.0 and boundary perls.

@@ -1,8 +1,11 @@
 package warnings::everywhere;
 
+use 5.008;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
+
+use Carp;
 
 =head1 NAME
 
@@ -39,8 +42,9 @@ Not so for other code, though.
 
 The test suite at $WORK produces a large number of 'use of uninitialized
 variable' warnings from (at the last count) four separate modules. Some of
-them are because warnings got switched on - somehow - for that module,
-even though the module itself didn't say anything about warnings.
+them are because warnings got switched on for that module,
+even though the module itself didn't say anything about warnings
+(probably because the test suite was run with prove).
 Others are there because the module explicitly said C<use warnings>, and
 then proceeded to blithely throw around variables without checking whether
 they were defined first.
@@ -108,6 +112,8 @@ All it does is fiddle with the exact behaviour of C<use warnings>,
 so a module that doesn't say C<use warnings>, or import a module that
 injects warnings like Moose, will be unaffected.
 
+=back
+
 =head2 Functions
 
 warnings::anywhere provides the following functions, mostly for diagnostic
@@ -131,15 +137,10 @@ FIXME: recognise fatal warnings.
 sub categories_enabled {
     my @categories;
     for my $category (_warning_categories()) {
-        ### TODO: check better
         push @categories, $category
-            if $warnings::Bits{$category} ne $warnings::NONE;
+            if _is_bit_set($warnings::Bits{$category},
+            $warnings::Offsets{$category});
     }
-    return @categories;
-}
-
-sub _warning_categories {
-    my @categories = sort grep { $_ ne 'all' } keys %warnings::Offsets;
     return @categories;
 }
 
@@ -158,14 +159,103 @@ FIXME:: recognise fatal warnings.
 sub categories_disabled {
     my @categories;
     for my $category (_warning_categories()) {
-        ### TODO: check better
         push @categories, $category
-            if $warnings::Bits{$category} eq $warnings::NONE;
+            if !_is_bit_set($warnings::Bits{$category},
+            $warnings::Offsets{$category});
     }
     return @categories;
 }
 
-=back
+sub _warning_categories {
+    my @categories = sort grep { $_ ne 'all' } keys %warnings::Offsets;
+    return @categories;
+}
+
+=item enable_warning_category
+
+ In: $category
+
+Supplied with a valid warning category, enables it for all future
+uses of C<use warnings>.
+
+TODO: what do we do about all?
+
+=cut
+
+sub enable_warning_category {
+    my ($category) = @_;
+
+    _check_warning_category($category) or return;
+    _set_category_mask($category, 1);
+    return 1;
+}
+
+sub _set_category_mask {
+    my ($category, $bit_value) = @_;
+    
+    ### FIXME: all
+    _set_bit_mask(\($warnings::Bits{$category}),
+        $warnings::Offsets{$category}, $bit_value);
+    _set_bit_mask(\($warnings::DeadBits{$category}),
+        $warnings::Offsets{$category} + 1, $bit_value);
+    ### TODO: compute all
+}
+
+=item disable_warning_category
+
+ In: $category
+
+Supplied with a valid warning category, disables it for future
+uses of C<use warnings> - even calls to explicitly enable it.
+
+=cut
+
+sub disable_warning_category {
+    my ($category) = @_;
+
+    _check_warning_category($category) or return;
+    _set_category_mask($category, 0);
+    return 1;
+}
+
+sub _set_bit_mask {
+    my ($mask_ref, $bit_num, $bit_value) = @_;
+
+    # First get the correct byte from the mask, then set that byte's
+    # bit accordingly.
+    # We have to do it this way as warning masks are hundreds of bits wide,
+    # which neither a 32- nor a 64-bit Perl can deal with natively.
+    my $byte_num = int($bit_num) / 8;
+    my $byte_value = substr($$mask_ref, $byte_num, 1);
+    vec($byte_value, $bit_num % 8, 1) = $bit_value;
+    substr($$mask_ref, $byte_num, 1) = $byte_value;
+    return $$mask_ref;
+}
+
+sub _is_bit_set {
+    my ($mask, $bit_num) = @_;
+
+    return vec($mask, int($bit_num / 8), 8) & (1<<($bit_num % 8));
+}
+
+sub _dump_mask {
+    my ($mask) = @_;
+
+    for my $byte_num (0..11) {
+        printf('%08b', vec($mask, $byte_num, 8));
+        print (($byte_num+1) % 4 == 0 ? "\n" : "|");
+    }
+}
+
+sub _check_warning_category {
+    my ($category) = @_;
+
+    if (!exists $warnings::Offsets{$category}) {
+        carp "Unrecognised warning category $category";
+        return;
+    }
+    return 1;
+}
 
 =back
 
