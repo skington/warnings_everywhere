@@ -5,6 +5,9 @@ use strict;
 use warnings;
 no warnings qw(uninitialized);
 
+our $VERSION = "0.001";
+$VERSION = eval $VERSION;
+
 use Carp;
 
 =head1 NAME
