@@ -1,3 +1,20 @@
+# From: https://github.com/github/gitignore/blob/master/Global/Linux.gitignore
+.*
+!.gitignore
+*~
+.directory
+
+
+# From https://github.com/github/gitignore/blob/master/Global/OSX.gitignore
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Also Mac OS share files
+.AppleDouble
+
+# GitHub perl standards
 blib/
 .build/
 _build/
