@@ -17,6 +17,7 @@ my $perl_functions;
     local $/ = undef;
     $perl_functions = <DATA>;
 }
+my @categories_testable = ($perl_functions =~ m{sub \s (\S+) }xgs);
 
 # We need a temporary directory to write this stuff to.
 # Let's start with a temporary directory.
@@ -27,7 +28,7 @@ push @INC, $dir->dirname;
 # Go through each warning violation in turn, checking that
 # we can disable it (a) individually, (b) as part of use warnings,
 # and (c) as part of use warnings ('all').
-for my $warning (qw(uninitialized)) {
+for my $warning (@categories_testable) {
     ok(warnings::everywhere::disable_warning_category($warning),
         "Disable warnings for $warning");
     for my $pragma_suffix ('', q{ ('all')}, qq{ ('$warning')}) {
