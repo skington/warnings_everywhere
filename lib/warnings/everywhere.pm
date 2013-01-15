@@ -5,7 +5,7 @@ use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-our $VERSION = "0.001";
+our $VERSION = '0.001';
 $VERSION = eval $VERSION;
 
 use Carp;
@@ -13,6 +13,10 @@ use Carp;
 =head1 NAME
 
 warnings::everywhere - a way of ensuring consistent global warning settings
+
+=head1 VERSION
+
+This is version 0.001.
 
 =head1 SYNOPSIS
 
@@ -117,7 +121,7 @@ injects warnings like Moose, will be unaffected.
 
 =back
 
-=head2 Functions
+=head1 SUBROUTINES
 
 warnings::anywhere provides the following functions, mostly for diagnostic
 use. They are not exported or exportable.
@@ -195,7 +199,7 @@ sub enable_warning_category {
 
 sub _set_category_mask {
     my ($category, $bit_value) = @_;
-    
+
     # Set or unset the specific category bit value (e.g. if
     # someone says use warnings qw(uninitialized) or
     # no warnings qw(uninitialized)).
@@ -288,6 +292,31 @@ sub _check_warning_category {
 }
 
 =back
+
+=head1 DIAGNOSTICS
+
+=over
+
+=item Unrecognised warning category $category
+
+Your version of Perl doesn't recognise the warning category $category.
+Either you're using a different version of Perl than you thought, or a
+third-party module that defined that warning isn't loaded yet.
+
+=back
+
+=head1 AUTHOR
+
+Sam Kington <skington@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2013 Sam Kington.
+
+=head1 LICENSE
+
+This library is free software and may be distributed under the same terms as
+perl itself.
 
 =cut
 
