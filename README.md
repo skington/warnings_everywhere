@@ -22,6 +22,5 @@ or
 TODO:
 
 * Check it works with fatal warnings.
-* Module aliases.
 * Test on 5.8.0, 5.11.0, 5.13.0 and boundary perls.
 * Add bug-tracker link.

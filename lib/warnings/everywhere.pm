@@ -23,6 +23,10 @@ sub unimport {
 }
 
 use Carp;
+use Package::Alias (
+    'warnings::anywhere'          => 'warnings::everywhere',
+    'goddamn::warnings::anywhere' => 'warnings::everywhere'
+);
 
 =head1 NAME
 

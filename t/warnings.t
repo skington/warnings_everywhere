@@ -46,18 +46,21 @@ for my $warning (@categories_testable) {
 }
 
 # Now do the same by having the module import warnings::everywhere
-is_deeply([warnings::everywhere::categories_disabled()],
-    [], 'All warnings are enabled');
+# in its various guises.
 for my $warning (@categories_testable) {
     for my $pragma_suffix ('', q{ ('all')}, qq{ ('$warning')}) {
-        for my $category (warnings::everywhere::categories_disabled()) {
-            warnings::everywhere::enable_warning_category($category);
+        for my $module_name ('warnings::everywhere', 'warnings::anywhere',
+            'goddamn::warnings::anywhere')
+        {
+            for my $category (warnings::everywhere::categories_disabled()) {
+                warnings::everywhere::enable_warning_category($category);
+            }
+            _test_package(
+                warning       => $warning,
+                pragma_suffix => $pragma_suffix,
+                import        => "no $module_name ('$warning');"
+            );
         }
-        _test_package(
-            warning       => $warning,
-            pragma_suffix => $pragma_suffix,
-            import        => "no warnings::everywhere ('$warning');"
-        );
     }
 }
 
