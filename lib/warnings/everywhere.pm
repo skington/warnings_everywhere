@@ -165,7 +165,6 @@ fiddled with anything, this will be the list of warning categories from
 L<perllexwarn>, minus C<all> which isn't a category itself.
 
 Fatal warnings are ignored for the purpose of this function.
-FIXME: recognise fatal warnings.
 
 =cut
 
@@ -187,7 +186,6 @@ Returns a sorted list of warning categories disabled globally. Before
 you've fiddled with anything, this will be the empty list.
 
 Fatal warnings are ignored for the purpose of this function.
-FIXME:: recognise fatal warnings.
 
 =cut
 
@@ -212,8 +210,6 @@ sub _warning_categories {
 
 Supplied with a valid warning category, enables it for all future
 uses of C<use warnings>.
-
-TODO: what do we do about all?
 
 =cut
 
@@ -324,6 +320,11 @@ sub _check_warning_category {
 }
 
 =back
+
+=head1 TO DO
+
+Support for fatal warnings, possibly.
+It's possible it doesn't behave correctly when passed 'all'.
 
 =head1 DIAGNOSTICS
 
