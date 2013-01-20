@@ -1,12 +1,14 @@
+0.003 20-01-2013
+
+	[Documentation]
+		Some sections were duplicated.
+
 0.002 20-01-2013
 
 	[Bugs]
 		no warnings::anywhere and no goddamn::warnings::anywhere
 		weren't working if you hadn't imported warnings::everywhere
 		first.
-
-	[Documentation]
-		Some sections were duplicated.
 
 0.001 20-01-2013
 
