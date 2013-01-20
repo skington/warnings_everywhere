@@ -5,7 +5,7 @@ use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 $VERSION = eval $VERSION;
 
 sub import {
@@ -23,10 +23,6 @@ sub unimport {
 }
 
 use Carp;
-use Package::Alias (
-    'warnings::anywhere'          => 'warnings::everywhere',
-    'goddamn::warnings::anywhere' => 'warnings::everywhere'
-);
 
 =head1 NAME
 
@@ -34,7 +30,7 @@ warnings::everywhere - a way of ensuring consistent global warning settings
 
 =head1 VERSION
 
-This is version 0.001.
+This is version 0.002.
 
 =head1 SYNOPSIS
 
