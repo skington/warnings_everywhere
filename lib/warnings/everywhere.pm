@@ -249,6 +249,10 @@ sub _set_category_mask {
         }
     }
     ### TODO: fatal warnings
+
+    # Finally, if someone specified the -w flag (which turns on all
+    # warnings, globally), turn it off.
+    $^W = 0;
 }
 
 =item disable_warning_category
