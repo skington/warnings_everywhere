@@ -45,21 +45,40 @@ for my $warning (@categories_testable) {
         "Enable warnings again for $warning");
 }
 
+# Now do the same by having the module import warnings::everywhere
+is_deeply([warnings::everywhere::categories_disabled()],
+    [], 'All warnings are enabled');
+for my $warning (@categories_testable) {
+    for my $pragma_suffix ('', q{ ('all')}, qq{ ('$warning')}) {
+        for my $category (warnings::everywhere::categories_disabled()) {
+            warnings::everywhere::enable_warning_category($category);
+        }
+        _test_package(
+            warning       => $warning,
+            pragma_suffix => $pragma_suffix,
+            import        => "no warnings::everywhere ('$warning');"
+        );
+    }
+}
+
 sub _test_package {
     my (%args) = @_;
 
     # Work out what we're going to call this test package.
     # Use underscores rather than :: to avoid faffing about with
     # creating subdirectories.
-    (my $package_suffix = $args{pragma_suffix}) =~ tr/a-z//cd;
-    $package_suffix ||= 'standard';
-    my $package_name = "test_$args{warning}_$package_suffix";
+    (my $package_suffix_pragma = $args{pragma_suffix}) =~ tr/a-z//cd;
+    $package_suffix_pragma ||= 'standard';
+    my $package_suffix_import = $args{import} ? 'import' : 'external';
+    my $package_name = sprintf('test_%s_%s_%s',
+        $args{warning}, $package_suffix_pragma, $package_suffix_import);
 
     # Build a class that will hopefully run the offending function
     # with warnings suitably enabled.
     my $module_contents = <<BUILD_PACKAGE;
 package $package_name;
 
+$args{import}
 use warnings$args{pragma_suffix};
 
 $perl_function{$args{warning}}
@@ -90,7 +109,8 @@ BUILD_PACKAGE
 
     # We didn't get any warnings
     is_deeply(\@warning_messages, [],
-        "No warnings produced for $args{warning}, $args{pragma_suffix}");
+              "No warnings produced for $args{warning}, $args{pragma_suffix},"
+            . " import $args{import}");
 }
 
 __DATA__
@@ -150,17 +170,17 @@ sub exiting {
 
 # WONTFIX: internal - can't reproduce without serious XS voodoo.
 
+sub illegalproto {
+    sub foo (this is not a valid prototype) {
+        return;
+    }
+}
+
 sub io {
     require DirHandle;
     my $dir_handle = DirHandle->new('.');
     $dir_handle->close;
     closedir($dir_handle);
-}
-
-sub illegalproto {
-    sub foo (this is not a valid prototype) {
-        return;
-    }
 }
 
 ### TODO: imprecision; can't find it in perldiag

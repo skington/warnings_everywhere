@@ -8,6 +8,20 @@ no warnings qw(uninitialized);
 our $VERSION = '0.001';
 $VERSION = eval $VERSION;
 
+sub import {
+    my $package = shift;
+    for my $category (@_) {
+        enable_warning_category($category);
+    }
+}
+
+sub unimport {
+    my $package = shift;
+    for my $category (@_) {
+        disable_warning_category($category);
+    }
+}
+
 use Carp;
 
 =head1 NAME
@@ -118,6 +132,20 @@ perl gets to your use statement, so it's ignored.
 All it does is fiddle with the exact behaviour of C<use warnings>,
 so a module that doesn't say C<use warnings>, or import a module that
 injects warnings like Moose, will be unaffected.
+
+=item It's not lexical
+
+While it I<looks> like a pragma, it's not - it fiddles with global settings,
+after all. So you can't say
+
+ {
+     no warnings::anywhere qw(uninitialized);
+     Chatty::Module->do_things;
+ }
+ Unchatty::Module->do_stuff(undef);
+
+and expect to get a warning from the last line. That warning's been
+turned off for good.
 
 =back
 
