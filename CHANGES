@@ -5,6 +5,9 @@
 		weren't working if you hadn't imported warnings::everywhere
 		first.
 
+	[Documentation]
+		Some sections were duplicated.
+
 0.001 20-01-2013
 
 	Initial release
