@@ -39,54 +39,58 @@ for my $warning (@categories_testable) {
         "Disable warnings for $warning")
         unless $ENV{FAIL};
     for my $pragma_suffix ('', q{ ('all')}, qq{ ('$warning')}) {
-        # Work out what we're going to call this test package.
-        # Use underscores rather than :: to avoid faffing about with
-        # creating subdirectories.
-        (my $package_suffix = $pragma_suffix) =~ tr/a-z//cd;
-        $package_suffix ||= 'standard';
-        my $package_name = "test_${warning}_$package_suffix";
-
-        # Build a class that will hopefully run the offending function
-        # with warnings suitably enabled.
-        my $module_contents = <<BUILD_PACKAGE;
-package $package_name;
-
-use warnings$pragma_suffix;
-
-$perl_function{$warning}
-1;
-BUILD_PACKAGE
-
-        # Write this to a file.
-        ok(
-            open(my $fh_module, '>', $dir->dirname . "/${package_name}.pm"),
-            "We can write a new module $package_name to $dir"
-        );
-        ok(
-            (print {$fh_module} $module_contents),
-            "We can add our generated module contents"
-        );
-        ok($fh_module->close, "We can finish writing $package_name to $dir");
-
-        # We can use this module.
-        my @warning_messages;
-        local $SIG{__WARN__} = sub {
-            my ($message) = @_;
-            push @warning_messages, $message;
-        };
-        use_ok($package_name);
-
-        # Call the appropriate method.
-        $package_name->$warning();
-        undef $SIG{__WARN__};
-
-        # We didn't get any warnings
-        is_deeply(\@warning_messages, [],
-            "No warnings produced for $warning");
+        _test_package(warning => $warning, pragma_suffix => $pragma_suffix);
     }
     ok(warnings::everywhere::enable_warning_category($warning),
         "Enable warnings again for $warning");
+}
 
+sub _test_package {
+    my (%args) = @_;
+
+    # Work out what we're going to call this test package.
+    # Use underscores rather than :: to avoid faffing about with
+    # creating subdirectories.
+    (my $package_suffix = $args{pragma_suffix}) =~ tr/a-z//cd;
+    $package_suffix ||= 'standard';
+    my $package_name = "test_$args{warning}_$package_suffix";
+
+    # Build a class that will hopefully run the offending function
+    # with warnings suitably enabled.
+    my $module_contents = <<BUILD_PACKAGE;
+package $package_name;
+
+use warnings$args{pragma_suffix};
+
+$perl_function{$args{warning}}
+1;
+BUILD_PACKAGE
+
+    # Write this to a file.
+    ok(open(my $fh_module, '>', $dir->dirname . "/${package_name}.pm"),
+        "We can write a new module $package_name to $dir");
+    ok(
+        (print {$fh_module} $module_contents),
+        "We can add our generated module contents"
+    );
+    ok($fh_module->close, "We can finish writing $package_name to $dir");
+
+    # We can use this module.
+    my @warning_messages;
+    local $SIG{__WARN__} = sub {
+        my ($message) = @_;
+        push @warning_messages, $message;
+    };
+    use_ok($package_name);
+
+    # Call the appropriate method.
+    my $method = $args{warning};
+    $package_name->$method();
+    undef $SIG{__WARN__};
+
+    # We didn't get any warnings
+    is_deeply(\@warning_messages, [],
+        "No warnings produced for $args{warning}, $args{pragma_suffix}");
 }
 
 __DATA__
