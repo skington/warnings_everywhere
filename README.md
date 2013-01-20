@@ -21,6 +21,6 @@ or
 
 TODO:
 
-* Check it works with fatal warnings.
+* Check it works with fatal warnings? Or if someone's made a warning fatal
+  should we not respect their choice?
 * Test on 5.8.0, 5.11.0, 5.13.0 and boundary perls.
-* Add bug-tracker link.

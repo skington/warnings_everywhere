@@ -337,9 +337,17 @@ third-party module that defined that warning isn't loaded yet.
 
 =back
 
+=head1 SEE ALSO
+
+L<common::sense>
+
 =head1 AUTHOR
 
 Sam Kington <skington@cpan.org>
+
+The source code for this module is hosted on GitHub
+L<https://github.com/skington/warnings_everywhere> - this is probably the
+best place to look for suggestions and feedback.
 
 =head1 COPYRIGHT
 
