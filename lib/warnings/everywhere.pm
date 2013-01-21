@@ -5,7 +5,7 @@ use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-our $VERSION = '0.003';
+our $VERSION = '0.004';
 $VERSION = eval $VERSION;
 
 sub import {
@@ -30,7 +30,7 @@ warnings::everywhere - a way of ensuring consistent global warning settings
 
 =head1 VERSION
 
-This is version 0.003.
+This is version 0.004.
 
 =head1 SYNOPSIS
 
@@ -126,6 +126,21 @@ Similarly, this is no help:
 
 Chatty::Module was pulled in by that other module already by the time
 perl gets to your use statement, so it's ignored.
+
+=item It's vulnerably to anything that sets $^W
+
+Any code that sets the global variable $^W, rather than saying C<use warnings>
+or C<warnings->import>, will turn on all warnings everywhere, bypassing the
+changes warnings::everywhere makes. This also includes any code that sets -w
+via the shebang.
+
+Any change to warnings by any of the warnings::anywhere code will turn off $^W
+again, whether it's a use statement or an explicit call to
+L<disable_warning_category> or similar.
+
+Any module that claims to enable warnings for you is potentially suspect
+- Moose is fine, but Dancer sets $^W to 1 as soon as it loads, even if your
+configuration subsequently disables import_warnings.
 
 =item It cannot make all modules use warnings
 

@@ -1,3 +1,8 @@
+0.004 20-01-2013
+
+	[Documentation]
+		Document problems with Dancer, and anything that messes with $^W
+
 0.003 20-01-2013
 
 	[Documentation]
