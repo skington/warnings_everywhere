@@ -5,7 +5,7 @@ use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-our $VERSION = '0.004';
+our $VERSION = '0.005';
 $VERSION = eval $VERSION;
 
 sub import {
@@ -30,7 +30,7 @@ warnings::everywhere - a way of ensuring consistent global warning settings
 
 =head1 VERSION
 
-This is version 0.004.
+This is version 0.005.
 
 =head1 SYNOPSIS
 
