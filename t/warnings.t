@@ -30,13 +30,14 @@ if ($ENV{CATEGORY}) {
 
 # We need a temporary directory to write this stuff to.
 # When this goes out of scope it should be deleted.
-my $dir;
+my ($dir, $dir_object);
 if (File::Temp->can('newdir')) {
-    $dir = File::Temp->newdir(CLEANUP => 1);
+    $dir_object = File::Temp->newdir(CLEANUP => 1);
+    $dir = $dir_object->dirname;
 } else {
     $dir = File::Spec->tmpdir();
 }
-push @INC, $dir->dirname;
+push @INC, $dir;
 
 # Go through each warning violation in turn, checking that
 # we can disable it (a) individually, (b) as part of use warnings,
@@ -106,8 +107,9 @@ $perl_function{$args{warning}}
 BUILD_PACKAGE
 
     # Write this to a file.
-    ok(open(my $fh_module, '>', $dir->dirname . "/${package_name}.pm"),
-        "We can write a new module $package_name to $dir");
+    ok(open(my $fh_module, '>', $dir . "/${package_name}.pm"),
+        "We can write a new module $package_name to $dir")
+        or diag "Couldn't write file: $!";
     ok(
         (print {$fh_module} $module_contents),
         "We can add our generated module contents"
