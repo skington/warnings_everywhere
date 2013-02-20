@@ -6,6 +6,7 @@ use warnings;
 no warnings qw(uninitialized);
 
 use English qw(-no_match_vars);
+use File::Spec;
 use File::Temp;
 use Test::More qw(no_plan);
 
@@ -29,7 +30,12 @@ if ($ENV{CATEGORY}) {
 
 # We need a temporary directory to write this stuff to.
 # When this goes out of scope it should be deleted.
-my $dir = File::Temp->newdir(CLEANUP => 1);
+my $dir;
+if (File::Temp->can('newdir')) {
+    $dir = File::Temp->newdir(CLEANUP => 1);
+} else {
+    $dir = File::Spec->tmpdir();
+}
 push @INC, $dir->dirname;
 
 # Go through each warning violation in turn, checking that
