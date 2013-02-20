@@ -1,3 +1,8 @@
+0.006 20-02-2013
+
+	[Test bugs]
+		Fixed test failures with Pod::Coverage <= 0.21
+
 0.005 20-01-2013
 
 	[Meta]
