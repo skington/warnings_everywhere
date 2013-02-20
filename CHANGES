@@ -1,7 +1,8 @@
 0.006 20-02-2013
 
 	[Test bugs]
-		Fixed test failures with Pod::Coverage <= 0.21
+		Fixed test failures with Pod::Coverage <= 0.21.
+		Removed some attempts at triggering warnings that weren't portable.
 
 0.005 20-01-2013
 
@@ -11,7 +12,7 @@
 0.004 20-01-2013
 
 	[Documentation]
-		Document problems with Dancer, and anything that messes with $^W
+		Document problems with Dancer, and anything that messes with $^W.
 
 0.003 20-01-2013
 
@@ -21,10 +22,10 @@
 0.002 20-01-2013
 
 	[Bugs]
-		no warnings::anywhere and no goddamn::warnings::anywhere
+		no warnings::anywhere and no goddamn::warnings::anywhere.
 		weren't working if you hadn't imported warnings::everywhere
 		first.
 
 0.001 20-01-2013
 
-	Initial release
+	Initial release.

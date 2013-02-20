@@ -224,7 +224,7 @@ sub numeric {
 
 ### FIXME: can't seem to reproduce a once warning
 
-### FIXME: overflow is tricky to trigger on a 64-bit system
+### WONTFIX: overflow is tricky to trigger on a 64-bit system
 
 sub pack {
     sub ultimate_answer {
@@ -241,10 +241,7 @@ sub pipe {
     open (my $fh, "|magritte|")
 }
 
-sub portable {
-    ### TODO: does this still work on 32-bit systems?
-    my $large_number = eval('0b' . (1 x 40));
-}
+### WONTFIX: portable is tricky to trigger reliably on all systems.
 
 sub precedence {
     my ($foo, $bar) = (0, 0);
