@@ -5,6 +5,7 @@ use strict;
 use warnings;
 no warnings qw(uninitialized);
 
+use English qw(-no_match_vars);
 use File::Temp;
 use Test::More qw(no_plan);
 
@@ -34,7 +35,17 @@ push @INC, $dir->dirname;
 # Go through each warning violation in turn, checking that
 # we can disable it (a) individually, (b) as part of use warnings,
 # and (c) as part of use warnings ('all').
+warning:
 for my $warning (@categories_testable) {
+    # The exec test produces unwanted output to STDERR in Windows,
+    # so skip it on those platforms.
+    if (   $warning eq 'exec'
+        && $OSNAME =~ /^ (MSWin32 | cygwin | dos | os2) $/x)
+    {
+        next warning;
+    }
+
+    # Disable the warning, and make sure it's not triggered.
     ok(warnings::everywhere::disable_warning_category($warning),
         "Disable warnings for $warning")
         unless $ENV{FAIL};
