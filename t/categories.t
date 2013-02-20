@@ -39,6 +39,7 @@ my %categories = (
     '5.011' => ['imprecision'],
     '5.012'  => ['illegalproto'],
     '5.014'  => ['non_unicode', 'nonchar', 'surrogate',],
+    '5.017004' => ['experimental', 'experimental:lexical_subs'],
 );
 
 my %category_exists
