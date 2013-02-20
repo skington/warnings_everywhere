@@ -2,7 +2,10 @@
 
 	[Test bugs]
 		Fixed test failures with Pod::Coverage <= 0.21.
-		Removed some attempts at triggering warnings that weren't portable.
+
+		Beefed up the warnings and categories tests, often by removing
+		some category tests that were in practice difficult to carry out
+		reliably across all versions and platforms.
 
 0.005 20-01-2013
 
@@ -22,7 +25,7 @@
 0.002 20-01-2013
 
 	[Bugs]
-		no warnings::anywhere and no goddamn::warnings::anywhere.
+		no warnings::anywhere and no goddamn::warnings::anywhere
 		weren't working if you hadn't imported warnings::everywhere
 		first.
 

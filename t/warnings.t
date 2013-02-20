@@ -13,7 +13,8 @@ use Test::More qw(no_plan);
 use_ok('warnings::everywhere');
 
 # All modules will use a common set of methods, defined at the end of
-# this test script; pull them in.
+# this test script; pull them in. But only gather warning categories that this
+# version of Perl supports.
 my (%perl_function, $current_function);
 line:
 while (<DATA>) {
@@ -23,7 +24,10 @@ while (<DATA>) {
     };
     $perl_function{$current_function} .= $_;
 }
-my @categories_testable = sort keys %perl_function;
+my %category_implemented = map { $_ => 1 }
+    warnings::everywhere::_warning_categories();
+my @categories_testable
+    = sort grep { $category_implemented{$_} } keys %perl_function;
 if ($ENV{CATEGORY}) {
     @categories_testable = grep { /$ENV{CATEGORY}/ } @categories_testable;
 }
@@ -161,12 +165,8 @@ sub closure {
 
 # WONTFIX: debugging. Looks like scary internal magic here.
 
-sub deprecated {
-    my @foo;
-    if (defined @foo) {
-        1;
-    }
-}
+# WONTFIX: deprecated. Too much of a moving target, and you shouldn't
+# override this anyway.
 
 sub digit {
     my $hex = hex('a curse upon both houses!');
