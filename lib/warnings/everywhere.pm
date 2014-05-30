@@ -127,7 +127,7 @@ Similarly, this is no help:
 Chatty::Module was pulled in by that other module already by the time
 perl gets to your use statement, so it's ignored.
 
-=item It's vulnerably to anything that sets $^W
+=item It's vulnerable to anything that sets $^W
 
 Any code that sets the global variable $^W, rather than saying C<use warnings>
 or C<warnings->import>, will turn on all warnings everywhere, bypassing the
