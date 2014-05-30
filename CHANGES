@@ -1,3 +1,12 @@
+0.007 30-05-2014
+
+    [Test bugs]
+        Removed an unnecessary test as it was more trouble than it was
+        worth.
+
+    [Documentation]
+        Very minor typo fix.
+
 0.006 20-02-2013
 
 	[Test bugs]
