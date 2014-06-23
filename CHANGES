@@ -5,6 +5,9 @@
         worth.
 
     [Documentation]
+		Added a note about not being able to disable compile-time
+		warnings like experimental::smartmatch.
+		
         Very minor typo fix.
 
 0.006 20-02-2013

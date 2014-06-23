@@ -95,8 +95,9 @@ sub _test_package {
     (my $package_suffix_pragma = $args{pragma_suffix}) =~ tr/a-z//cd;
     $package_suffix_pragma ||= 'standard';
     my $package_suffix_import = $args{import} ? 'import' : 'external';
+    (my $warning_package = $args{warning}) =~ s/::/_/g;
     my $package_name = sprintf('test_%s_%s_%s',
-        $args{warning}, $package_suffix_pragma, $package_suffix_import);
+        $warning_package, $package_suffix_pragma, $package_suffix_import);
 
     # Build a class that will hopefully run the offending function
     # with warnings suitably enabled.

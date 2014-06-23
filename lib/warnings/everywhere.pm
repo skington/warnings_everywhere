@@ -30,7 +30,7 @@ warnings::everywhere - a way of ensuring consistent global warning settings
 
 =head1 VERSION
 
-This is version 0.005.
+This is version 0.007.
 
 =head1 SYNOPSIS
 
@@ -161,6 +161,13 @@ after all. So you can't say
 
 and expect to get a warning from the last line. That warning's been
 turned off for good.
+
+=item It won't work for compile-time warnings
+
+It works by fiddling with the (global) %warnings::Bits variable, and that's
+fine for run-time warnings, but compile-time warnings like e.g.
+C<experimental::smartmatch> will still happen, even if you think
+you've disabled them.
 
 =back
 
