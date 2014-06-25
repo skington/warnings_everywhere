@@ -18,13 +18,13 @@ sub generate_only_some_warnings {
     my $baz = sort qw(foo bar baz);
 
     # We do get a warning for this, though.
-    my $bletch = unpack("H", "\x{2a1}");
+    my $hex = hex('Eye of newt, and toe of frog');
 
-    is(scalar @warning_messages, 1, 'Only one warnings');
+    is(scalar @warning_messages, 1, 'Only one warning');
     like(
         $warning_messages[0],
-        qr/Character in 'H' format wrapped in unpack/,
-        'Warning for unpack'
+        qr/Illegal hexadecimal digit/,
+        'Warning for hex'
     );
 }
 

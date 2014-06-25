@@ -1,3 +1,8 @@
+0.008 25-06-2014
+	[Test bugs]
+		Perl 5.8.9 didn't think a dodgy unpack warranted a warning, so
+		switched to something that all perls agree is dodgy.
+
 0.007 30-05-2014
 
     [Test bugs]
