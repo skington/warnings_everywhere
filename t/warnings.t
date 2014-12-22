@@ -260,7 +260,7 @@ sub precedence {
 }
 
 sub printf {
-    my $foo = sprintf('%zebra', 'stripes');
+    my $foo = sprintf('%vd', '1.2ab');
 }
 
 sub prototype {
@@ -289,6 +289,10 @@ sub recursion {
 sub redefine {
     sub bernie_taupin_lyric { 'If I were a sculptor' }
     sub bernie_taupin_lyric { 'But then again no'    }
+}
+
+sub redundant {
+    sprintf('%s', 'foo', 'bar');
 }
 
 sub regexp {
