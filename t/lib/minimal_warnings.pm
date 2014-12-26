@@ -15,16 +15,16 @@ sub generate_only_some_warnings {
     my $foo;
     my $bar = $foo . q{ damn, that was an undef wasn't it?};
 
-    my $baz = sort qw(foo bar baz);
-
     # We do get a warning for this, though.
-    my $hex = hex('Eye of newt, and toe of frog');
+    my $number = 42;
+    my $string = 'Life, the Universe and Everything';
+    my $not_number = $number + $string;
 
     is(scalar @warning_messages, 1, 'Only one warning');
     like(
         $warning_messages[0],
-        qr/Illegal hexadecimal digit/,
-        'Warning for hex'
+        qr/isn't numeric/,
+        'Warning for numeric'
     );
 }
 

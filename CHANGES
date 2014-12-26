@@ -1,3 +1,10 @@
+0.010 26-12-2014
+
+	[Test bugs]
+		Perl 5.8.8 triggered a warning for the previous test code
+		at compile time. Switched to a more necessarily run-time
+		warning.
+
 0.009 22-12-2014
 
     [Test bugs]
