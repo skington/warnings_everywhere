@@ -177,6 +177,9 @@ sub exec {
     exec("hoo____ray! this should never, never, ever work");
 }
 
+# CANTFIX: the experimental::foo warnings are compile-time warnings
+# that we can't override in the usual way.
+
 sub exiting {
     sub other_sub {
         last loop;
