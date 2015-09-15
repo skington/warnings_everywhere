@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Turn off warnings using the standard name of the module.
+# Turn off warnings using the sweary, grammatical name of the module.
 
 use strict;
 no goddamn::warnings::anywhere qw(uninitialized void);
