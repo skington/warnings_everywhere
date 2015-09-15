@@ -30,7 +30,7 @@ warnings::everywhere - a way of ensuring consistent global warning settings
 
 =head1 VERSION
 
-This is version 0.007.
+This is version 0.010.
 
 =head1 SYNOPSIS
 
