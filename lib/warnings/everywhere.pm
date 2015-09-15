@@ -34,9 +34,13 @@ This is version 0.010.
 
 =head1 SYNOPSIS
 
+ use strict;
+ use warnings;
  no warnings::anywhere qw(uninitialized);
+ 
  use Module::That::Spits::Out::Warnings;
  use Other::Unnecessarily::Chatty::Module;
+
  use warnings::everywhere qw(uninitialized);
  # Write your own bondage-and-discipline code that really, really
  # cares about the difference between undef and the empty string
