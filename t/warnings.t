@@ -10,6 +10,9 @@ use File::Spec;
 use File::Temp;
 use Test::More qw(no_plan);
 
+use lib::abs 'lib';
+use warnings::everywhere::utils qw(temp_dir);
+
 use_ok('warnings::everywhere');
 
 # All modules will use a common set of methods, defined at the end of
@@ -34,13 +37,7 @@ if ($ENV{CATEGORY}) {
 
 # We need a temporary directory to write this stuff to.
 # When this goes out of scope it should be deleted.
-my ($dir, $dir_object);
-if (File::Temp->can('newdir')) {
-    $dir_object = File::Temp->newdir(CLEANUP => 1);
-    $dir = $dir_object->dirname;
-} else {
-    $dir = File::Spec->tmpdir();
-}
+my ($dir, $dir_object) = temp_dir();
 push @INC, $dir;
 
 # Go through each warning violation in turn, checking that
