@@ -4,6 +4,7 @@ use 5.008;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
+use Carp;
 
 our $VERSION = '0.010';
 $VERSION = eval $VERSION;
@@ -11,18 +12,37 @@ $VERSION = eval $VERSION;
 sub import {
     my $package = shift;
     for my $category (@_) {
-        enable_warning_category($category);
+        if (ref($category)) {
+            $package->_check_import_argument($category);
+        } else {
+            enable_warning_category($category);
+        }
     }
 }
 
 sub unimport {
     my $package = shift;
     for my $category (@_) {
-        disable_warning_category($category);
+        if (ref($category)) {
+            $package->_check_import_argument($category);
+        } else {
+            disable_warning_category($category);
+        }
     }
 }
 
-use Carp;
+sub _check_import_argument {
+    my ($package, $argument) = @_;
+
+    return if !ref($argument);
+    if (ref($argument) ne 'HASH') {
+        croak "Unexpected import argument $argument";
+    }
+    if (!exists $argument->{warning} || !exists $argument->{thwart_module}) {
+        croak "Argument keys must include warning and thwart_module";
+    }
+    _check_warning_category($argument->{warning}) or die;
+}
 
 =head1 NAME
 
@@ -34,6 +54,7 @@ This is version 0.010.
 
 =head1 SYNOPSIS
 
+ # Turn off run-time warnings
  use strict;
  use warnings;
  no warnings::anywhere qw(uninitialized);
@@ -44,6 +65,22 @@ This is version 0.010.
  use warnings::everywhere qw(uninitialized);
  # Write your own bondage-and-discipline code that really, really
  # cares about the difference between undef and the empty string
+ 
+ # Stop "helpful" modules from turning compile-time warnings back on again
+ use strict;
+ use warnings;
+ no warnings::anywhere {
+     warning       => 'experimental::smartmatch',
+     thwart_module => [qw(Moose Moo Dancer Dancer2)],
+ };
+ use Module::That::Might::Pull::In::Moose::Or::Moo::Or::Who::Knows::What;
+ 
+ given (shift @ARGV) {
+     ...
+     default {
+         print STDERR "# I'll fix it in a moment, OK?\n";
+     }
+ }
 
 =head1 DESCRIPTION
 
