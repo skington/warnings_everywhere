@@ -5,6 +5,7 @@ use strict;
 use warnings;
 no warnings qw(uninitialized);
 use Carp;
+use File::Spec;
 
 our $VERSION = '0.020';
 $VERSION = eval $VERSION;
@@ -12,9 +13,7 @@ $VERSION = eval $VERSION;
 sub import {
     my $package = shift;
     for my $category (@_) {
-        if (ref($category)) {
-            $package->_check_import_argument($category);
-        } else {
+        if (!ref($category)) {
             enable_warning_category($category);
         }
     }
@@ -22,11 +21,12 @@ sub import {
 
 sub unimport {
     my $package = shift;
-    for my $category (@_) {
-        if (ref($category)) {
-            $package->_check_import_argument($category);
+    for my $args (@_) {
+        if (ref($args)) {
+            $package->_check_import_argument($args);
+            $package->_thwart_module(%$args);
         } else {
-            disable_warning_category($category);
+            disable_warning_category($args);
         }
     }
 }
@@ -357,7 +357,8 @@ sub _set_bit_mask {
 sub _is_bit_set {
     my ($mask, $bit_num) = @_;
 
-    return vec($mask, int($bit_num / 8), 8) & (1 << ($bit_num % 8));
+    my $smallest_bit_num = $bit_num % 8;
+    return vec($mask, int($bit_num / 8), 8) & (1 << $smallest_bit_num);
 }
 
 sub _dump_mask {
@@ -381,6 +382,81 @@ sub _check_warning_category {
     }
     return 1;
 }
+
+sub _thwart_module {
+    my ($package, %args) = @_;
+
+    my $module = $args{thwart_module};
+    my $filename = $module;
+    $filename =~ s{/}{::}g;
+    $filename .= '.pm';
+    unshift @INC, sub {
+        my ($this_coderef, $use_filename) = @_;
+        return if $use_filename ne $filename;
+
+        # Find the source of the module we're looking for.
+        # This will fail if the module is itself being loaded by a
+        # coderef in @INC, say, but should work for the vast, vast
+        # majority of cases.
+        my $source_fh = $package->_find_module_source($use_filename)
+            or do {
+            croak "You asked me to thwart $args{thwart_module}"
+                . " but I can't find $use_filename anywhere in @INC";
+            };
+        my $source;
+        {
+            local $/;
+            $source = <$source_fh>;
+        }
+
+        # Work out what we're going to inject into this source code.
+        my @warnings
+            = ref($args{warning} eq 'ARRAY')
+            ? @{ $args{warning} }
+            : $args{warning};
+        my $source_code_unimport;
+        for my $warning (@warnings) {
+            $source_code_unimport .= qq{warnings->unimport("$warning");\n};
+        }
+        my $extra_code = <<EXTRACODE;
+### Code injected by $package
+my \$__warnings_everywhere_orig_import = \\\&${module}::import;
+{
+    no warnings 'redefine';
+    *${module}::import = sub {
+        \$__warnings_everywhere_orig_import->(\@_);
+        $source_code_unimport
+    }
+}
+### End of code injected by $package
+1;
+EXTRACODE
+
+        # This wants to go either at the end, or before __END__
+        # (potentially __DATA__ as well? None of the classes I wanted to
+        # thwart have anything like this).
+        $source =~ s/^ (__END__) $/$extra_code$1/xsm
+            or $source .= $extra_code;
+
+        # Right, return this modified source code.
+        open (my $fh_source, '<', \$source);
+        return $fh_source;
+    };
+}
+
+sub _find_module_source {
+    my ($package, $use_filename) = @_;
+
+    for my $dir (grep { !ref($_) } @INC) {
+        my $full_path = File::Spec->catfile($dir, $use_filename);
+        if (-e $full_path) {
+            open (my $fh, '<', $full_path);
+            return $fh;
+        }
+    }
+    return;
+}
+
 
 =back
 
