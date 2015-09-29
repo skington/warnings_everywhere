@@ -1,3 +1,11 @@
+0.020 29-09-2015
+
+	[Feature]
+		Now allows you to thwart modules such as Moose, Moo, Dancer and
+		Dancer2 that import warnings - which has the side-effect of turning
+		on compile-time warnings that you'd previously turned off.
+		It's clever but it's not pretty.
+
 0.010 26-12-2014
 
 	[Test bugs]
