@@ -386,9 +386,17 @@ sub _check_warning_category {
 sub _thwart_module {
     my ($package, %args) = @_;
 
+    # There are two ways of thwarting modules: the usual Perlish way,
+    # and one special mode for Moose, which generates its own import
+    # sub which can't be wrapped.
     my $module = $args{thwart_module};
+    my $mode = 'append_sub';
+    if ($module eq 'Moose') {
+        $module = 'Moose::Exporter';
+        $mode   = 'append_statement';
+    }
     my $filename = $module;
-    $filename =~ s{/}{::}g;
+    $filename =~ s{::}{/}g;
     $filename .= '.pm';
     unshift @INC, sub {
         my ($this_coderef, $use_filename) = @_;
@@ -418,8 +426,13 @@ sub _thwart_module {
         for my $warning (@warnings) {
             $source_code_unimport .= qq{warnings->unimport("$warning");\n};
         }
-        my $extra_code = <<EXTRACODE;
-### Code injected by $package
+        my $injection_warning_start = "### Code injected by $package";
+        my $injection_warning_end   = "### End of code injected by $package";
+
+        # We might be adding an extra import sub.
+        if ($mode eq 'append_sub') {
+            my $extra_code = <<EXTRACODE;
+$injection_warning_start
 my \$__warnings_everywhere_orig_import = \\\&${module}::import;
 {
     no warnings 'redefine';
@@ -428,14 +441,27 @@ my \$__warnings_everywhere_orig_import = \\\&${module}::import;
         $source_code_unimport
     }
 }
-### End of code injected by $package
+$injection_warning_end
 1;
 EXTRACODE
 
-        # This wants to go either at the end, or before __END__ or
-        # __DATA__
-        $source =~ s/^ (__ (?: END|DATA ) __) $/$extra_code$1/xsm
-            or $source .= $extra_code;
+            # This wants to go either at the end, or before __END__ or
+            # __DATA__
+            $source =~ s/^ (__ (?: END|DATA ) __) $/$extra_code$1/xsm
+                or $source .= $extra_code;
+
+        # Or we might be adding our import statements immediately
+        # after the call to import.
+        } elsif ($mode eq 'append_statement') {
+            $source =~ s{
+                ( warnings->import; \n )
+            }{
+$1
+$injection_warning_start
+$source_code_unimport
+$injection_warning_end
+            }x;
+        }
 
         # Right, return this modified source code.
         open (my $fh_source, '<', \$source);
