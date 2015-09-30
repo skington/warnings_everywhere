@@ -7,7 +7,7 @@ no warnings qw(uninitialized);
 use Carp;
 use File::Spec;
 
-our $VERSION = '0.021';
+our $VERSION = '0.022';
 $VERSION = eval $VERSION;
 
 sub import {
@@ -55,7 +55,7 @@ warnings::everywhere - a way of ensuring consistent global warning settings
 
 =head1 VERSION
 
-This is version 0.021.
+This is version 0.022.
 
 =head1 SYNOPSIS
 
@@ -434,14 +434,11 @@ sub _thwart_modules {
 sub _thwart_this_module {
     my ($package, %args) = @_;
 
-    # There are two ways of thwarting modules: the usual Perlish way,
-    # and one special mode for Moose, which generates its own import
-    # sub which can't be wrapped.
+    # Moose's import sub is actually defined in Moose::Exporter, so
+    # modify that code instead.
     my $module = $args{thwart_module};
-    my $mode = 'append_sub';
     if ($module eq 'Moose') {
         $module = 'Moose::Exporter';
-        $mode   = 'append_statement';
     }
     my $filename = $module;
     $filename =~ s{::}{/}g;
@@ -470,48 +467,23 @@ sub _thwart_this_module {
             = ref($args{warning} eq 'ARRAY')
             ? @{ $args{warning} }
             : $args{warning};
-        my $source_code_unimport;
+        my $source_code_unimport = "### Code injected by $package\n";
         for my $warning (@warnings) {
             $source_code_unimport .= qq{warnings->unimport("$warning");\n};
         }
-        my $injection_warning_start = "### Code injected by $package";
-        my $injection_warning_end   = "### End of code injected by $package";
+        $source_code_unimport .= "### End of code injected by $package\n";
 
-        # We might be adding an extra import sub.
-        if ($mode eq 'append_sub') {
-            my $extra_code = <<EXTRACODE;
-$injection_warning_start
-if (!\$warnings::everywhere::_thwarted_module{"${module}"}++) {
-    my \$__warnings_everywhere_orig_import = \\\&${module}::import;
-    {
-        no warnings 'redefine';
-        *${module}::import = sub {
-            \$__warnings_everywhere_orig_import->(\@_);
-            $source_code_unimport
-        };
-    }
-}
-$injection_warning_end
-1;
-EXTRACODE
-
-            # This wants to go either at the end, or before __END__ or
-            # __DATA__
-            $source =~ s/^ (__ (?: END|DATA ) __) $/$extra_code$1/xsm
-                or $source .= $extra_code;
-
-        # Or we might be adding our import statements immediately
-        # after the call to import.
-        } elsif ($mode eq 'append_statement') {
-            $source =~ s{
-                ( warnings->import; \n )
-            }{
-$1
-$injection_warning_start
-$source_code_unimport
-$injection_warning_end
-            }x;
+        # Add this stuff just after a call to warnings->import (Moose, Moo,
+        # Dancer) or Dancer2's more complicated version.
+        my $re_code;
+        if ($module eq 'Dancer2') {
+            $re_code = qr/ ( import::into [^\n]+ warnings [^\n]+ ; \n ) /x;
+        } else {
+            $re_code = qr/ ( warnings->import; \n) /x;
         }
+        $source =~ s/$re_code/$1$source_code_unimport/xsm
+            or croak
+            "Couldn't find a call to $re_code in $use_filename";
 
         # Right, return this modified source code.
         open (my $fh_source, '<', \$source);

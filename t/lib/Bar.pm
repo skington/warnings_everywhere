@@ -2,7 +2,10 @@ package Bar;
 
 use warnings;
 
-sub import { strict->import; warnings->import; }
+sub import {
+    strict->import;
+    warnings->import;
+}
 
 1;
 __DATA__

@@ -1,3 +1,8 @@
+0.022 30-09-2015
+	[Bugfix]
+		Make the code brittler, but more reliable (symbols are correctly
+		exported now).
+
 0.021 29-09-2015
 	[Bugfix]
 		Cope with passing multiple modules to thwart_module like the
