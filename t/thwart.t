@@ -122,7 +122,7 @@ sub _test_file {
     my ($stdin, $stdout, $stderr);
     $stderr = Symbol::gensym;
     my $pid = IPC::Open3::open3($stdin, $stdout, $stderr,
-        'perl', $file);
+        $EXECUTABLE_NAME, $file);
     waitpid($pid, 0);
     my $stderr_output;
     {
