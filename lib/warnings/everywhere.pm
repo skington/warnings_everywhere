@@ -76,7 +76,7 @@ This is version 0.022.
  use warnings;
  no warnings::anywhere {
      warning       => 'experimental::smartmatch',
-     thwart_module => [qw(Moose Moo Dancer Dancer2)],
+     thwart_module => [qw(Moose Moo Dancer Dancer2 Test::Class::Moose)],
  };
  use Module::That::Might::Pull::In::Moose::Or::Moo::Or::Who::Knows::What;
  
@@ -157,9 +157,9 @@ as per L<perllexwarn>, where C<all> means all warnings.
 
 This won't work for some (all?) compile-time warnings that are not just
 enabled for the module in question, but are injected back into your package.
-Moose, Moo, Dancer and Dancer2 all do this at the time of writing, by saying
-C<warnings->import> in their import method, thus injecting all warnings into
-I<your> package.
+Moose, Moo, Dancer, Dancer2 and Test::Class::Moose all do this at the time of
+writing, by saying C<<warnings->import>> in their import method, thus
+injecting all warnings into I<your> package.
 
 To stop such code from turning back on warnings that you thought you'd
 disabled, say e.g.
@@ -205,7 +205,7 @@ perl gets to your use statement, so it's ignored.
 =item It's vulnerable to anything that sets $^W
 
 Any code that sets the global variable $^W, rather than saying C<use warnings>
-or C<warnings->import>, will turn on all warnings everywhere, bypassing the
+or C<<warnings->import>>, will turn on all warnings everywhere, bypassing the
 changes warnings::everywhere makes. This also includes any code that sets -w
 via the shebang.
 
@@ -474,16 +474,18 @@ sub _thwart_this_module {
         $source_code_unimport .= "### End of code injected by $package\n";
 
         # Add this stuff just after a call to warnings->import (Moose, Moo,
-        # Dancer) or Dancer2's more complicated version.
+        # Dancer) or import::into (Dancer2, Test::Class::Moose).
         my $re_code;
         if ($module eq 'Dancer2') {
             $re_code = qr/ ( import::into [^\n]+ warnings [^\n]+ ; \n ) /x;
+        } elsif ($module eq 'Test::Class::Moose') {
+            $re_code = qr/ ( \$_ -> import::into [^;\n]+ ; \n )/x;
         } else {
             $re_code = qr/ ( warnings->import; \n) /x;
         }
         $source =~ s/$re_code/$1$source_code_unimport/xsm
             or croak
-            "Couldn't find a call to $re_code in $use_filename";
+            "Couldn't find a call to $re_code in $use_filename for $module\n$source\n";
 
         # Right, return this modified source code.
         open (my $fh_source, '<', \$source);
