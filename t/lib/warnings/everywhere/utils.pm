@@ -3,8 +3,6 @@ package warnings::everywhere::utils;
 use strict;
 use warnings;
 no warnings 'uninitialized';
-use File::Temp;
-use File::Spec;
 
 use parent 'Exporter';
 our @EXPORT_OK = qw(temp_dir);
