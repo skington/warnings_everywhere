@@ -114,17 +114,9 @@ they were defined first.
 Either way, this isn't my code, and it's not something I'm going to fix.
 These warnings are just spam.
 
-Similarly, if you disable e.g. experimental::smartmatch because you know that
-you're using smartmatch, and you're not going to be using a version of
-Perl that has a version of smartmatch that behaves differently, you might
-get those warnings enabled back again by a module such as Moose or Dancer
-which turns all warnings on.
-
 This is where warnings::everywhere comes in.
 
 =head2 Usage
-
-=head3 Run-time warnings
 
 At its simplest, say
 
@@ -147,27 +139,6 @@ or
 
 Parameters are the same as C<use warnings>: a list of categories
 as per L<perllexwarn>, where C<all> means all warnings.
-
-=head3 Compile-time warnings
-
-This won't work for some (all?) compile-time warnings that are not just
-enabled for the module in question, but are injected back into your package.
-Moose, Moo, Dancer and Dancer2 all do this at the time of writing, by saying
-C<warnings->import> in their import method, thus injecting all warnings into
-I<your> package.
-
-To stop such code from turning back on warnings that you thought you'd
-disabled, say e.g.
-
- no warnings::anywhere {
-     warning       => 'experimental::smartmatch',
-     thwart_module => [qw(Moose)],
- };
-
-B<Warning>: warnings::everywhere disables these warnings by what is basically
-a source filter, so use with caution. If you can find an approved way of
-preventing modules such as Moose from doing this, do that rather than
-messing about with the module's source code!
 
 =head2 Limitations
 
@@ -232,12 +203,12 @@ after all. So you can't say
 and expect to get a warning from the last line. That warning's been
 turned off for good.
 
-=item Its method of disabling compile-time warnings is frankly iffy
+=item It won't work for compile-time warnings
 
-The best I can say about its method of messing with the source code of
-imported modules is that at least its modifications shouldn't stack with
-other source filters, so the degree of weirdness and potential insanity
-should be reduced to a manageable level.
+It works by fiddling with the (global) %warnings::Bits variable, and that's
+fine for run-time warnings, but compile-time warnings like e.g.
+C<experimental::smartmatch> will still happen, even if you think
+you've disabled them.
 
 =back
 
