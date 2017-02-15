@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Stop Moose, Dancer etc. from re-enabling experimental warnings on us.
+# Stop Moose from re-enabling experimental warnings on us.
 
 use strict;
 use warnings;
@@ -43,21 +43,6 @@ for my $module (qw(Moose Moo Dancer Dancer2)) {
         open(my $fh, '>', $file),
         "We can write $class.pm to $file"
     );
-    _write_module_source($fh, $file, $class, <<INCLUDE);
-no warnings::anywhere {
-    warning       => 'experimental::smartmatch',
-    thwart_module => '$module',
-}, 'uninitialized';
-use $module;
-INCLUDE
-
-    # Make sure we get exactly the warnings we expect.
-    _test_file($file, $module);
-}
-
-sub _write_module_source {
-    my ($fh, $file, $class, $include_source) = @_;
-
     my $inc_list = join("\n", @INC);
     ok(do { print {$fh} <<MODULE_SOURCE }, "We can write ${class}'s source");
 #!/usr/bin/env perl
@@ -67,7 +52,11 @@ use lib qw(
     $inc_list
 );
 use feature 'switch';
-$include_source
+no warnings::anywhere {
+    warning       => 'experimental::smartmatch',
+    thwart_module => '$module',
+}, 'uninitialized';
+use $module;
 
 my \$foo;
 given (\$foo) {
@@ -92,13 +81,8 @@ my \$bar_ref = 'bar';
 1;
 MODULE_SOURCE
     ok($fh->close, "We can close the file for $class");
-}
 
-sub _test_file {
-    my ($file, $module) = @_;
-
-    # Run this through Perl as a separate process, to make sure that
-    # we don't pollute the environment with anything unintended.
+    # It shouldn't produce any warnings.
     my ($stdin, $stdout, $stderr);
     $stderr = Symbol::gensym;
     my $pid = IPC::Open3::open3($stdin, $stdout, $stderr,
