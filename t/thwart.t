@@ -51,6 +51,7 @@ package $class;
 use lib qw(
     $inc_list
 );
+use strict;
 use feature 'switch';
 no warnings::anywhere {
     warning       => 'experimental::smartmatch',
@@ -69,14 +70,6 @@ given (\$foo) {
 }
 
 print STDERR "# $file was compiled successfully\n";
-
-# Should generate uselessuse of constant in void context warning,
-# from use warnings.
-my \$bar => 42;
-
-# Should trigger "Can't use string as a SCALAR ref" warning from strict.
-my \$bar_ref = 'bar';
-\$\$bar_ref = 42;
 
 1;
 MODULE_SOURCE
@@ -102,12 +95,5 @@ MODULE_SOURCE
         $stderr_output,
         qr/^ \# \s $file \s was \s compiled \s successfully $/xsm,
         "$module was loaded"
-    );
-    like($stderr_output, qr/^ Useless [^\n]+ void \s context [^\n]+ $/xsm,
-        "$module imported warnings");
-    like(
-        $stderr_output,
-        qr/^ Can't \s use \s string [^\n]+ SCALAR \s ref [^\n]+ $/xsm,
-        "$module imported strict"
     );
 }
