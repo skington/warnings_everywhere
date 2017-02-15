@@ -432,9 +432,10 @@ my \$__warnings_everywhere_orig_import = \\\&${module}::import;
 1;
 EXTRACODE
 
-        # This wants to go either at the end, or before __END__ or
-        # __DATA__
-        $source =~ s/^ (__ (?: END|DATA ) __) $/$extra_code$1/xsm
+        # This wants to go either at the end, or before __END__
+        # (potentially __DATA__ as well? None of the classes I wanted to
+        # thwart have anything like this).
+        $source =~ s/^ (__END__) $/$extra_code$1/xsm
             or $source .= $extra_code;
 
         # Right, return this modified source code.
