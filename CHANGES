@@ -1,3 +1,44 @@
+0.030 15-02-2017
+	[Feature]
+		Thwarting modules that import compile-time warnings was a bad idea.
+		Source filters are bad, full stop.
+		Also, I didn't properly understand how warnings were being turned
+		back on; there's a simpler way of avoiding e.g. experimental
+		warnings being turned back on, which has now been documented.
+
+0.024 07-10-2016
+	[Feature]
+		Also thwart Test::Class::Moose
+
+	[Pod]
+		Say C<<warnings->import>>, not C<warnings->import>.
+		Thanks to Philippe Bruhat (BooK) for this spot!
+
+0.023 30-10-2015
+	[Bugfix]
+		Use a more portable way of specifying the name of the Perl
+		executable. This was RT 108201 - thanks to Slaven Rezic SREZIC
+		for the spot.
+
+0.022 30-09-2015
+	[Bugfix]
+		Make the code brittler, but more reliable (symbols are correctly
+		exported now).
+
+0.021 29-09-2015
+	[Bugfix]
+		Cope with passing multiple modules to thwart_module like the
+		documentation suggested, and actually test all of this functionality
+		even if you didn't have Moose, Moo, Dancer or Dancer2 installed.
+
+0.020 29-09-2015
+
+	[Feature]
+		Now allows you to thwart modules such as Moose, Moo, Dancer and
+		Dancer2 that import warnings - which has the side-effect of turning
+		on compile-time warnings that you'd previously turned off.
+		It's clever but it's not pretty.
+
 0.010 26-12-2014
 
 	[Test bugs]

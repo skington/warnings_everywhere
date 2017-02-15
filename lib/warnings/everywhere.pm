@@ -5,7 +5,7 @@ use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-our $VERSION = '0.010';
+our $VERSION = '0.030';
 $VERSION = eval $VERSION;
 
 sub import {
@@ -30,7 +30,7 @@ warnings::everywhere - a way of ensuring consistent global warning settings
 
 =head1 VERSION
 
-This is version 0.010.
+This is version 0.030.
 
 =head1 SYNOPSIS
 
@@ -169,9 +169,26 @@ turned off for good.
 =item It won't work for compile-time warnings
 
 It works by fiddling with the (global) %warnings::Bits variable, and that's
-fine for run-time warnings, but compile-time warnings like e.g.
-C<experimental::smartmatch> will still happen, even if you think
-you've disabled them.
+fine for run-time warnings. But if you say e.g.
+
+ use warnings;
+ use experimental 'signatures';
+ no warnings::anywhere 'experimental::signatures';
+ use Moose; # or Moo, or Dancer2, or... or...
+
+that won't work, as when Moose (or Moo, or Dancer2 etc.) injects all warnings
+into your package, it turns everything back on, and warnings::everywhere
+can't thwart that.
+
+(Previous versions of warnings::everywhere I<tried> to thwart this by
+basically a source filter, but that proved untenable.)
+
+The solution is to remember that Moose, Moo, Dancer2 etc. only turn on
+these compile-time warnings I<for this particular package>, so just say e.g.
+
+ use warnings;
+ use Moose; # or Moo etc.
+ use experimental 'signatures';
 
 =back
 
