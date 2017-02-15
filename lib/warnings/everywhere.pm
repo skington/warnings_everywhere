@@ -24,7 +24,7 @@ sub unimport {
     for my $args (@_) {
         if (ref($args)) {
             $package->_check_import_argument($args);
-            $package->_thwart_modules(%$args);
+            $package->_thwart_module(%$args);
         } else {
             disable_warning_category($args);
         }
@@ -40,11 +40,6 @@ sub _check_import_argument {
     }
     if (!exists $argument->{warning} || !exists $argument->{thwart_module}) {
         croak "Argument keys must include warning and thwart_module";
-    }
-    if (   ref($argument->{thwart_module})
-        && ref($argument->{thwart_module}) ne 'ARRAY')
-    {
-        croak "Argument thwart_module should be a scalar or an arrayref";
     }
     _check_warning_category($argument->{warning}) or die;
 }
@@ -417,21 +412,7 @@ sub _check_warning_category {
     return 1;
 }
 
-sub _thwart_modules {
-    my ($package, %args) = @_;
-
-    my @modules
-        = ref($args{thwart_module}) eq 'ARRAY'
-        ? @{ $args{thwart_module} }
-        : $args{thwart_module};
-
-
-    for my $module (@modules) {
-        $package->_thwart_this_module(%args, thwart_module => $module);
-    }
-}
-
-sub _thwart_this_module {
+sub _thwart_module {
     my ($package, %args) = @_;
 
     # There are two ways of thwarting modules: the usual Perlish way,
@@ -481,14 +462,12 @@ sub _thwart_this_module {
         if ($mode eq 'append_sub') {
             my $extra_code = <<EXTRACODE;
 $injection_warning_start
-if (!\$warnings::everywhere::_thwarted_module{"${module}"}++) {
-    my \$__warnings_everywhere_orig_import = \\\&${module}::import;
-    {
-        no warnings 'redefine';
-        *${module}::import = sub {
-            \$__warnings_everywhere_orig_import->(\@_);
-            $source_code_unimport
-        };
+my \$__warnings_everywhere_orig_import = \\\&${module}::import;
+{
+    no warnings 'redefine';
+    *${module}::import = sub {
+        \$__warnings_everywhere_orig_import->(\@_);
+        $source_code_unimport
     }
 }
 $injection_warning_end

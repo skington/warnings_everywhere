@@ -14,12 +14,3 @@ is(eval("$use {}; 1"), undef, 'Cannot pass an empty hashref');
 diag 'Expect a warning "Unrecognised warning category bees" here';
 is(eval("$use {warning => 'bees', thwart_module => 'Foo'}; 1"), undef,
     'Must specify a valid warning');
-is(eval(<<BOGUS_REF), undef, 'Must specify a valid thwart_module') or diag $@;
-$use {
-    warning => 'experimental::smartmatch', 
-    thwart_module => {
-        Moose => 1,
-        Moo => 0,
-    }
-}
-BOGUS_REF

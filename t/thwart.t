@@ -23,30 +23,10 @@ plan 'no_plan';
 my ($temp_dir, $temp_dir_object) = temp_dir();
 push @INC, $temp_dir;
 
-# First some toy examples. Test the arrayref import syntax while we're
-# at it.
-my $class = 'thwart_toy';
-my $file = File::Spec->catfile($temp_dir, "$class.pm");
-ok(
-    open(my $fh, '>', $file),
-    "We can write $class.pm to $file"
-);
-_write_module_source($fh, $file, $class, <<INCLUDE);
-no warnings::anywhere {
-    warning       => 'experimental::smartmatch',
-    thwart_module => [qw(Foo Bar)]
-}, 'uninitialized';
-use Foo;
-use Bar;
-INCLUDE
-
-# Make sure we get exactly the warnings we expect.
-_test_file($file, 'thwart_toy');
-
-# Try some real-life modules in turn. Dancer2 will get annoyed if it tries to
-# load a config file from /loader/0xdeadbeef/blah which is where it appears to
-# have been loaded if we mess with it via an @INC coderef, so claim that it
-# has a perfectly reasonable config directory instead.
+# Try each module in turn. Dancer2 will get annoyed if it tries to load
+# a config file from /loader/0xdeadbeef/blah which is where it appears to
+# have been loaded if we mess with it via an @INC coderef, so claim that
+# it has a perfectly reasonable config directory instead.
 $ENV{DANCER_CONFDIR} = $temp_dir;
 module:
 for my $module (qw(Moose Moo Dancer Dancer2)) {

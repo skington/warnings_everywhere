@@ -1,9 +1,3 @@
-0.021 29-09-2015
-	[Bugfix]
-		Cope with passing multiple modules to thwart_module like the
-		documentation suggested, and actually test all of this functionality
-		even if you didn't have Moose, Moo, Dancer or Dancer2 installed.
-
 0.020 29-09-2015
 
 	[Feature]
