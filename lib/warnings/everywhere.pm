@@ -7,7 +7,7 @@ no warnings qw(uninitialized);
 use Carp;
 use File::Spec;
 
-our $VERSION = '0.021';
+our $VERSION = '0.020';
 $VERSION = eval $VERSION;
 
 sub import {
@@ -55,7 +55,7 @@ warnings::everywhere - a way of ensuring consistent global warning settings
 
 =head1 VERSION
 
-This is version 0.021.
+This is version 0.020.
 
 =head1 SYNOPSIS
 
