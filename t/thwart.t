@@ -23,13 +23,9 @@ plan 'no_plan';
 my ($temp_dir, $temp_dir_object) = temp_dir();
 push @INC, $temp_dir;
 
-# Try each module in turn. Dancer2 will get annoyed if it tries to load
-# a config file from /loader/0xdeadbeef/blah which is where it appears to
-# have been loaded if we mess with it via an @INC coderef, so claim that
-# it has a perfectly reasonable config directory instead.
-$ENV{DANCER_CONFDIR} = $temp_dir;
+# Try each module in turn.
 module:
-for my $module (qw(Moo Dancer Dancer2)) {
+for my $module (qw(Moo Dancer)) {
     # Make sure we have this module installed.
     eval "use $module qw(); 1" or do {
         Test::More->builder->skip("$module not installed");
@@ -69,8 +65,6 @@ given (\$foo) {
     }
 }
 
-print STDERR "# $file was compiled successfully\n";
-
 1;
 MODULE_SOURCE
     ok($fh->close, "We can close the file for $class");
@@ -86,14 +80,5 @@ MODULE_SOURCE
         local $/;
         $stderr_output = <$stderr>;
     }
-    unlike(
-        $stderr_output,
-        qr/is \s experimental/x,
-        "No experimental warnings for $module"
-    );
-    like(
-        $stderr_output,
-        qr/^ \# \s $file \s was \s compiled \s successfully $/xsm,
-        "$module was loaded"
-    );
+    is($stderr_output, '', "$module was thwarted");
 }
