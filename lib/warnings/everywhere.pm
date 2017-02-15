@@ -7,7 +7,7 @@ no warnings qw(uninitialized);
 use Carp;
 use File::Spec;
 
-our $VERSION = '0.024';
+our $VERSION = '0.023';
 $VERSION = eval $VERSION;
 
 sub import {
