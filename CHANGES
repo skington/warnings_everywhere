@@ -1,11 +1,3 @@
-0.024 07-10-2016
-	[Feature]
-		Also thwart Test::Class::Moose
-
-	[Pod]
-		Say C<<warnings->import>>, not C<warnings->import>.
-		Thanks to Philippe Bruhat (BooK) for this spot!
-
 0.023 30-10-2015
 	[Bugfix]
 		Use a more portable way of specifying the name of the Perl

@@ -49,7 +49,7 @@ _test_file($file, 'thwart_toy');
 # has a perfectly reasonable config directory instead.
 $ENV{DANCER_CONFDIR} = $temp_dir;
 module:
-for my $module (qw(Moose Moo Dancer Dancer2 Test::Class::Moose)) {
+for my $module (qw(Moose Moo Dancer Dancer2)) {
     # Make sure we have this module installed.
     eval "use $module qw(); 1" or do {
         Test::More->builder->skip("$module not installed");
