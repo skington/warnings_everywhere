@@ -177,9 +177,6 @@ sub exec {
     exec("hoo____ray! this should never, never, ever work");
 }
 
-# CANTFIX: the experimental::foo warnings are compile-time warnings
-# that we can't override in the usual way.
-
 sub exiting {
     sub other_sub {
         last loop;
@@ -189,6 +186,9 @@ sub exiting {
         other_sub();
     }
 }
+
+# CANTFIX: the experimental::foo warnings are compile-time warnings
+# that we can't override in the usual way.
 
 ### FIXME: glob? Looks hard to trigger portably
 
@@ -202,6 +202,11 @@ sub illegalproto {
     }
 }
 
+sub imprecision {
+    my $large_num = 10**100;
+    $large_num++;
+}
+
 sub io {
     require DirHandle;
     my $dir_handle = DirHandle->new('.');
@@ -209,17 +214,21 @@ sub io {
     closedir($dir_handle);
 }
 
-### TODO: imprecision; can't find it in perldiag
-
 sub layer {
     open(my $fh, '<:unix and nothing else', $0);
 }
+
+# TODO: locale
 
 # WONTFIX: malloc - hell no.
 
 sub misc {
     my $wannabe_object = { stuff => 'awesome' };
     bless $wannabe_object => '';
+}
+
+sub missing {
+    sprintf('%s %s', 'foo');
 }
 
 sub newline {
@@ -308,6 +317,11 @@ sub regexp {
 
 ### TODO: deal with severe somehow?
 
+sub shadow {
+    our $FOO;
+    our $FOO;
+}
+
 ### TODO: can't seem to disable signal?
 
 sub substr {
@@ -316,6 +330,10 @@ sub substr {
 }
 
 # WONTFIX: surrogate; nasty UTF16 stuff I don't want to get involved with.
+
+sub syscalls {
+    -e "foo\x{00}bar";
+}
 
 sub syntax {
     my $foo = 'foo';
