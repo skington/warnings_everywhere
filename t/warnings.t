@@ -313,6 +313,10 @@ sub regexp {
 
 # WONTFIX: reserved; difficult to test under use strict, and it's a good one.
 
+sub scalar {
+    my $foo = sort qw(foo bar baz);
+}
+
 ### TODO: find a way to trigger the semicolon warning.
 
 ### TODO: deal with severe somehow?
@@ -367,5 +371,7 @@ sub unpack {
 # WONTFIX: utf8; problematic on older perls.
 
 sub void {
-    my $foo = sort qw(foo bar baz);
+    my ($one, $two);
+    $one, $two = 1, 2;
+    return;
 }
